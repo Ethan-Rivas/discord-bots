@@ -25,15 +25,21 @@ league_token = 'RGAPI-7e12becc-b66c-4413-b6b6-3ef13c334391'
   "Connected to voice channel: #{channel.name}"
 end
 
-@bot.command(:league, description: 'Returns the current division of a Summoner (Use %20 insted of whitespaces)', usage: '!league summoner') do |event, summoner_name|
+@bot.command(:league, description: 'Returns the current division of a Summoner', usage: '!league summoner_name') do |*args|
+  event = args.shift
+  summoner_name = URI.escape(args.join(' '))
+
+  # Request Summoner basic data
   summoner = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/summoner/v3/summoners/by-name/" + summoner_name + "?api_key=" + league_token)
 
   data = JSON.parse(summoner)
   data_id = data['id'].to_s
 
+  # Request Summoner leagues data
   league = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/league/v3/positions/by-summoner/" + data_id + "?api_key=" + league_token)
   league_data = JSON.parse(league)
 
+  # Return League data based on Summoner ID
   event.respond "Summoner: " + league_data[0]['playerOrTeamName'] + "\nName: " + league_data[0]['leagueName'] +  " | Tier: " + league_data[0]['tier'] + " " + league_data[0]['rank'] + " | Queue: " + league_data[0]['queueType'].gsub('_', ' ')
                 + "\nName: " + league_data[1]['leagueName'] + " | Tier: " + league_data[1]['tier'] + " " + league_data[1]['rank'] + " | Queue: " + league_data[1]['queueType'].gsub('_', ' ')
 
