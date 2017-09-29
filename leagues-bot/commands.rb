@@ -1,5 +1,3 @@
-Encoding.default_external = Encoding::UTF_8
-
 # Require Gnar Bot
 require './gnar-bot'
 
@@ -7,9 +5,16 @@ require './gnar-bot'
 require 'uri'
 require 'net/http'
 
-# Here's where the magic happens
-league_token = 'RGAPI-7e12becc-b66c-4413-b6b6-3ef13c334391'
+# Require Token
+require './token'
 
+#####################################
+##                                 ##
+##   Join bot to current Channel   ##
+##                                 ##
+#####################################
+
+# Here's where the magic happens
 @bot.command(:connect) do |event|
   # The `voice_channel` method returns the voice channel the user is currently in, or `nil` if the user is not in a
   # voice channel.
@@ -25,18 +30,24 @@ league_token = 'RGAPI-7e12becc-b66c-4413-b6b6-3ef13c334391'
   "Connected to voice channel: #{channel.name}"
 end
 
+#####################################
+##                                 ##
+##    Summoner Leagues Request     ##
+##                                 ##
+#####################################
+
 @bot.command(:league, description: 'Returns the current division of a Summoner', usage: '!league summoner_name') do |*args|
   event = args.shift
   summoner_name = URI.escape(args.join(' '))
 
   # Request Summoner basic data
-  summoner = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/summoner/v3/summoners/by-name/" + summoner_name + "?api_key=" + league_token)
+  summoner = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/summoner/v3/summoners/by-name/" + summoner_name + "?api_key=" + @league_token)
 
   data = JSON.parse(summoner)
   data_id = data['id'].to_s
 
   # Request Summoner leagues data
-  league = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/league/v3/positions/by-summoner/" + data_id + "?api_key=" + league_token)
+  league = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/league/v3/positions/by-summoner/" + data_id + "?api_key=" + @league_token)
   league_data = JSON.parse(league)
 
   # Return League data based on Summoner ID
