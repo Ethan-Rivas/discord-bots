@@ -31,10 +31,12 @@ end
   data = JSON.parse(summoner)
   data_id = data['id'].to_s
 
-  "https://la1.api.riotgames.com/lol/league/v3/leagues/by-summoner/" + data_id + "?api_key=" + league_token
+  league = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/league/v3/positions/by-summoner/" + data_id + "?api_key=" + league_token)
+  league_data = JSON.parse(league)
 
-  #event.respond "Tier: " + league[0]['tier'] + " Queue: " + league[0]['queue']
-  #event.respond "Name: " + league[0]['name']
+  event.respond "Summoner: " + league_data[0]['playerOrTeamName'] + "\nName: " + league_data[0]['leagueName'] +  " | Tier: " + league_data[0]['tier'] + " " + league_data[0]['rank'] + " | Queue: " + league_data[0]['queueType'].gsub('_', ' ')
+                + "\nName: " + league_data[1]['leagueName'] + " | Tier: " + league_data[1]['tier'] + " " + league_data[1]['rank'] + " | Queue: " + league_data[1]['queueType'].gsub('_', ' ')
+
 end
 
 # Run Bot
