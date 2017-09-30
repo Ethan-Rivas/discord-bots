@@ -5,9 +5,6 @@ require './gnar-bot'
 require 'uri'
 require 'net/http'
 
-# Require Token
-require './token'
-
 #####################################
 ##                                 ##
 ##   Join bot to current Channel   ##
@@ -38,22 +35,43 @@ end
 
 @bot.command(:league, description: 'Returns the current division of a Summoner', usage: '!league summoner_name') do |*args|
   event = args.shift
-  summoner_name = URI.escape(args.join(' '))
+  summoner_name = args.join(' ')
 
   # Request Summoner basic data
-  summoner = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/summoner/v3/summoners/by-name/" + summoner_name + "?api_key=" + @league_token)
+  summoner_id = @taric.summoner_by_name(summoner_name: summoner_name).body['id']
 
-  data = JSON.parse(summoner)
-  data_id = data['id'].to_s
-
-  # Request Summoner leagues data
-  league = Net::HTTP.get URI("https://la1.api.riotgames.com/lol/league/v3/positions/by-summoner/" + data_id + "?api_key=" + @league_token)
-  league_data = JSON.parse(league)
+  # Request Summoner current leagues (SoloQ and Flex)
+  league = @taric.league_positions(summoner_id: summoner_id).body
 
   # Return League data based on Summoner ID
-  event.respond "Summoner: " + league_data[0]['playerOrTeamName'] + "\nName: " + league_data[0]['leagueName'] +  " | Tier: " + league_data[0]['tier'] + " " + league_data[0]['rank'] + " | Queue: " + league_data[0]['queueType'].gsub('_', ' ')
-                + "\nName: " + league_data[1]['leagueName'] + " | Tier: " + league_data[1]['tier'] + " " + league_data[1]['rank'] + " | Queue: " + league_data[1]['queueType'].gsub('_', ' ')
+  event.respond "Summoner: " + league[0]['playerOrTeamName'] + "\n\nName: " + league[0]['leagueName'] +  " | Tier: " + league[0]['tier'] + " " + league[0]['rank'] + " | Queue: " + league[0]['queueType'].gsub('_', ' ')
+                + "\nName: " + league[1]['leagueName'] + " | Tier: " + league[1]['tier'] + " " + league[1]['rank'] + " | Queue: " + league[1]['queueType'].gsub('_', ' ')
+end
 
+#####################################
+##                                 ##
+##        Items info Request       ##
+##                                 ##
+#####################################
+
+@bot.command(:item, description: 'Gives information about an specific item', usage: '!item item_name') do |*args|
+  event = args.shift
+  item_name = args.join(' ')
+
+  # Request Item data
+  items_data = @taric.static_items(item_list_data: "sanitizedDescription").body['data']
+
+  # Loop through items and find requested item
+  item = {}
+
+  items_data.each do |k, v|
+    if v['name'] == item_name
+      item = v
+    end
+  end
+
+  # Return Item basic data
+  event.respond "Item: " + item['name']+ "\n\nDescription: " + item['sanitizedDescription'] + "\n\nSmall Info: " + item['plaintext']
 end
 
 # Run Bot

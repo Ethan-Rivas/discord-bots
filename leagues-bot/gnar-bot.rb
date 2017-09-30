@@ -1,6 +1,6 @@
 # Require Discord Ruby API
 require 'discordrb'
-require './token'
+require './initializers/taric_initializer'
 require './commands'
 
 puts "Press ctrl-C to send back to sleep our baby Gnar"

@@ -2,3 +2,8 @@ source 'https://rubygems.org'
 
 # Discord Ruby Gem
 gem 'discordrb'
+
+# Summon a beautiful Taric (API league of legends for Ruby)
+gem 'taric'
+gem 'typhoeus'
+gem 'faraday'
