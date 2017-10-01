@@ -90,20 +90,44 @@ end
   # Request Summoner current Match
   current_match = @taric.current_game(summoner_id: summoner_id).body
 
+  puts current_match
+
   # Save summoner on each side
   blueTeam = []
   redTeam = []
 
-  current_match['participants'].each do |summoner|
-    if summoner['teamId'] == 100
-      blueTeam.push(summoner['summonerName'])
-    else
-      redTeam.push(summoner['summonerName'])
+  # Check if there's a current match
+  if current_match['participants']
+    current_match['participants'].each do |summoner|
+      if summoner['teamId'] == 100
+        blueTeam.push(summoner['summonerName'])
+      else
+        redTeam.push(summoner['summonerName'])
+      end
     end
+
+    # Shows current match data (Summoner names for each team)
+    #event.respond "Blue Team: " + blueTeam.join(', ') + "\nRed Team: " + redTeam.join(', ')
+    event.respond "```css
+#BlueTeam
+> #{blueTeam[0]}
+> #{blueTeam[1]}
+> #{blueTeam[2]}
+> #{blueTeam[3]}
+> #{blueTeam[4]}
+```" + "\n```css
+[RedTeam]
+> #{redTeam[0]}
+> #{redTeam[1]}
+> #{redTeam[2]}
+> #{redTeam[3]}
+> #{redTeam[4]}
+```"
+  else
+    # If there's no active game return this message
+    event.respond "`There's no current game active.`"
   end
 
-  #event.respond "```**Blue Team** " + blueTeam.join(', ') + "\t**Red Team:** " + redTeam.join(', ') + "```"
-  event.respond "```css \ncss``` \n```python \n python```"
 end
 
 # Run Bot
