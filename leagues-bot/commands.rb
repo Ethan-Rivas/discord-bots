@@ -70,8 +70,13 @@ end
     end
   end
 
-  # Return Item basic data
-  event.respond "Item: " + item['name']+ "\n\nDescription: " + item['sanitizedDescription'] + "\n\nSmall Info: " + item['plaintext']
+  # Checks if the item data is saved (exists)
+  if item.empty?
+    event.respond "`Are you sure that's the right name of an item?`"
+  else
+    # Return Item basic data
+    event.respond "Item: " + item['name']+ "\n\nDescription: " + item['sanitizedDescription'] + "\n\nSmall Info: " + item['plaintext']
+  end
 end
 
 #####################################
