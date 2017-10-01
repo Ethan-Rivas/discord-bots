@@ -74,5 +74,37 @@ end
   event.respond "Item: " + item['name']+ "\n\nDescription: " + item['sanitizedDescription'] + "\n\nSmall Info: " + item['plaintext']
 end
 
+#####################################
+##                                 ##
+##     Summoner Current Match      ##
+##                                 ##
+#####################################
+
+@bot.command(:current_game, description: 'Gives information about a summoner current match', usage: '!current_game summoner_name') do |*args|
+  event = args.shift
+  summoner_name = args.join(' ')
+
+  # Request Summoner ID
+  summoner_id = @taric.summoner_by_name(summoner_name: summoner_name).body['id']
+
+  # Request Summoner current Match
+  current_match = @taric.current_game(summoner_id: summoner_id).body
+
+  # Save summoner on each side
+  blueTeam = []
+  redTeam = []
+
+  current_match['participants'].each do |summoner|
+    if summoner['teamId'] == 100
+      blueTeam.push(summoner['summonerName'])
+    else
+      redTeam.push(summoner['summonerName'])
+    end
+  end
+
+  #event.respond "```**Blue Team** " + blueTeam.join(', ') + "\t**Red Team:** " + redTeam.join(', ') + "```"
+  event.respond "```css \ncss``` \n```python \n python```"
+end
+
 # Run Bot
 @bot.run
